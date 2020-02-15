@@ -1,11 +1,12 @@
 import json
 import os
 import requests
+from pathlib import Path
 from urllib.request import urlretrieve
+from multiprocessing import Pool
 
-url = 'https://focusmusic.fm/api/tracks.php'
-for channel in ["electronic", "downtempo", "classical", "rain"]:
-    offset, firsturl = 0, False
+def download_channel(channel, offset=0, firsturl=False):
+    Path(os.getcwd() + "/" + channel).mkdir(parents=True, exist_ok=True)
     while 1:
         url = f'https://focusmusic.fm/api/tracks.php?offset={offset}&channel={channel}'
         response_json = json.loads(requests.get(url, timeout=10).content)
@@ -21,3 +22,5 @@ for channel in ["electronic", "downtempo", "classical", "rain"]:
         except Exception:
             print("File not Found")
         offset +=1
+
+Pool().map(download_channel, ["electronic", "downtempo", "classical", "rain"])
