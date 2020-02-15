@@ -4,19 +4,15 @@ from urllib.request import urlretrieve
 from multiprocessing import Pool
 
 def download_channel(channel, offset=0, firsturl=False):
-    Path(str(Path()) + "/" + channel).mkdir(parents=True, exist_ok=True)
+    Path(str(Path()) + "/" + channel).mkdir(exist_ok=True)
 
     while 1:
         url = f'https://focusmusic.fm/api/tracks.php?offset={offset}&channel={channel}'
-        response_json = json.loads(requests.get(url, timeout=10).content)
-        file_url = response_json.get("url").replace("\\","")
-        filepath = str(Path()) + "/" + channel + "/" + file_url.split("/")[-1]
-
+        file_url = json.loads(requests.get(url, timeout=10).content).get("url").replace("\\","")
         if file_url == firsturl: break
-        firsturl = firsturl or file_url
-
+        filepath, firsturl = str(Path()) + "/" + channel + "/" + Path(file_url).name, firsturl or file_url
         if not Path(filepath).exists():
-            print("getting offset {} filename {}".format(offset, Path(filepath).name))
+            print(f"getting offset {offset} filename {Path(filepath).name}"); 
             urlretrieve(file_url, filepath)
         offset +=1
 
